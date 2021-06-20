@@ -1,21 +1,24 @@
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
-public class MakoRobot extends BaseRobot {
+public class MakoRobot extends BaseRobot implements MapOrder {
+    private Map<String, Integer> map = new HashMap<>();
+
     public MakoRobot(String rootWebsiteUrl) {
         super(rootWebsiteUrl);
     }
 
     @Override
     public Map<String, Integer> getWordsStatistics() throws IOException {
-        Map<String, Integer> map = new HashMap<>();
         String url, begging = "https://www.mako.co.il/";
         ArrayList<String> sitesUrl = new ArrayList<>();
-        Document article, mako = Jsoup.connect(getRootWebsiteUrl()).get();
+        Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
         //teasers section
         for (Element teasers : mako.getElementsByClass("teasers")) {
             for (Element child : teasers.children()) {
@@ -41,42 +44,16 @@ public class MakoRobot extends BaseRobot {
 
         //access the sites
         for (String site : sitesUrl) {
-            //string for storage the whole text of the site
-            String siteText = "";
-            StringBuilder siteTextBuilder = new StringBuilder(siteText);
-            article = Jsoup.connect(site).get();
-            //title
-            siteTextBuilder.append(article.getElementsByTag("h1").get(0).text());
-            //sub-title
-            siteTextBuilder.append(article.getElementsByTag("h2").text());
-            //article body
-            Element articleBody = article.getElementsByClass("article-body").get(0);
-            for (Element p : articleBody.getElementsByTag("p")) {
-                siteTextBuilder.append(p.text());
-            }
-            //getting all the words
-            char[] symbols = {',', '.', ':'};
-            int size = siteTextBuilder.length();
-            System.out.println(siteTextBuilder);
-            for (int j=0,i = 0; i < size; j++,i++) {
-                for (char symbol : symbols) {
-                    if (siteTextBuilder.charAt(j) == symbol ||
-                            (siteTextBuilder.charAt(j) == '"' &&
-                                    (siteTextBuilder.charAt(j - 1) == ' ' ||
-                                            siteTextBuilder.charAt(j + 1) == ' '))) {
-                        siteTextBuilder.deleteCharAt(j);
-                        i++;
-                        j--;
-                    }
-
-                }
-            }
-            siteText += siteTextBuilder.toString();
-            System.out.println(Arrays.toString(siteText.split(" ")));
-            new Scanner(System.in).next();
+            //String for storage the whole text of the site
+            String siteText;
+            siteText = accessSite(site);
+            siteText = correctWords(siteText);
+            String[] wordsOfArticle = siteText.split(" ");
+            map = getWordsIntoMap(wordsOfArticle,map);
         }
         return map;
     }
+
 
     @Override
     public int countInArticlesTitles(String text) {
@@ -87,4 +64,23 @@ public class MakoRobot extends BaseRobot {
     public String getLongestArticleTitle() {
         return null;
     }
+
+    public String accessSite(String site) throws IOException {
+        Document article;
+        StringBuilder siteTextBuilder = new StringBuilder();
+        article = Jsoup.connect(site).get();
+        //title
+        siteTextBuilder.append(article.getElementsByTag("h1").get(0).text());
+        siteTextBuilder.append(" ");
+        //sub-title
+        siteTextBuilder.append(article.getElementsByTag("h2").text());
+        //article body
+        Element articleBody = article.getElementsByClass("article-body").get(0);
+        for (Element p : articleBody.getElementsByTag("p")) {
+            siteTextBuilder.append(" ");
+            siteTextBuilder.append(p.text());
+        }
+        //getting all the words
+        return siteTextBuilder.toString();
+       }
 }
