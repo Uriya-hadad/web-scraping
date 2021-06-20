@@ -1,36 +1,21 @@
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
-import javax.net.ssl.SSLHandshakeException;
 
 
-public class YnetRobot extends BaseRobot implements MapOrder{
-    public static void main(String[] args) throws IOException{
-//        new YnetRobot("https://www.ynet.co.il/home/0,7340,L-8,00.html").getWordsStatistics();
-//            new WallaRobot("https://www.walla.co.il/").getWordsStatistics();
-//            new MakoRobot("https://www.mako.co.il/").getWordsStatistics();
-        System.out.println(new YnetRobot("https://www.ynet.co.il/home/0,7340,L-8,00.html").countInArticlesTitles("hi"));
-
-    }
-
-    public YnetRobot(String rootWebsiteUrl) {
-        super(rootWebsiteUrl);
-    }
-
+public class YnetRobot extends BaseRobot implements MapOrder {
     private Map<String, Integer> map = new HashMap<>();
+    private final ArrayList<String> sitesUrl;
 
-    @Override
-    public Map<String, Integer> getWordsStatistics() throws IOException {
+    public YnetRobot() throws IOException {
+        super("https://www.ynet.co.il/home/0,7340,L-8,00.html");
         String url;
-        ArrayList<String> sitesUrl = new ArrayList<>();
-        Document article, ynet = Jsoup.connect(getRootWebsiteUrl()).get();
+        sitesUrl = new ArrayList<>();
+        Document ynet = Jsoup.connect(getRootWebsiteUrl()).get();
         //teasers section
         for (Element slotTitle : ynet.getElementsByClass("TopStory1280Componenta basic")) {
             Element element = slotTitle.getElementsByClass("slotTitle").get(0);
@@ -54,17 +39,19 @@ public class YnetRobot extends BaseRobot implements MapOrder{
                 sitesUrl.add(url);
             }
         }
+    }
+
+
+    @Override
+    public Map<String, Integer> getWordsStatistics() throws IOException {
         //access the sites
         for (String site : sitesUrl) {
-            //TODO chuck if the ynet plus is updated
-
-
             //String for storage the whole text of the site
             String siteText;
             siteText = accessSite(site);
             siteText = correctWords(siteText);
             String[] wordsOfArticle = siteText.split(" ");
-            map = getWordsIntoMap(wordsOfArticle,map);
+            map = getWordsIntoMap(wordsOfArticle, map);
         }
         return map;
     }
@@ -73,29 +60,47 @@ public class YnetRobot extends BaseRobot implements MapOrder{
     public int countInArticlesTitles(String text) throws IOException {
         int count = 0;
         Document document = Jsoup.connect(getRootWebsiteUrl()).get();
-        for (Element slotTitle_small : document.getElementsByClass("slotTitle small")) {
-            if(slotTitle_small.text().contains(text)){
-                count++;
+        for (Element container : document.getElementsByClass("layoutContainer")) {
+            for (Element title_small : container.getElementsByClass("slotTitle small")) {
+                if (title_small.text().contains(text)) {
+                    count++;
+                }
+            }
+            for (Element title_medium : container.getElementsByClass("slotTitle medium")) {
+                if (title_medium.text().contains(text)) {
+                    count++;
+                }
             }
         }
-        System.out.println("*******************");
-        for (Element slotTitle_medium : document.getElementsByClass("slotTitle medium")) {
-            if(slotTitle_medium.text().contains(text)){
-                count++;
-            }
-        }
-        if (document.getElementsByClass("slotSubTitle").get(0).text().contains(text)){
+        if (document.getElementsByClass("slotSubTitle").get(0).text().contains(text)) {
             count++;
         }
-        if(document.getElementsByClass("slotTitle").get(0).text().contains(text)){
+        if (document.getElementsByClass("slotTitle").get(0).text().contains(text)) {
             count++;
         }
         return count;
     }
 
     @Override
-    public String getLongestArticleTitle() {
-        return null;
+    public String getLongestArticleTitle() throws IOException {
+        Document article;
+        String longestArticleTitle = "";
+        int longest = 0;
+        for (String site : sitesUrl) {
+            article = Jsoup.connect(site).get();
+            //title
+            String title = article.getElementsByClass("mainTitle").text();
+            //article body
+            StringBuilder siteTextBuilder = new StringBuilder();
+            for (Element text_editor_paragraph_rtl : article.getElementsByClass("text_editor_paragraph rtl")) {
+                siteTextBuilder.append(text_editor_paragraph_rtl.getElementsByTag("span").text());
+            }
+            if (longest < siteTextBuilder.length()) {
+                longest = siteTextBuilder.length();
+                longestArticleTitle = title;
+            }
+        }
+        return longestArticleTitle;
     }
 
     @Override

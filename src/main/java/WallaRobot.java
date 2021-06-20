@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WallaRobot extends BaseRobot {
-    public WallaRobot(String rootWebsiteUrl) {
-        super(rootWebsiteUrl);
+    public WallaRobot() {
+        super("https://www.walla.co.il/");
     }
 
     @Override

@@ -1,23 +1,20 @@
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MakoRobot extends BaseRobot implements MapOrder {
     private Map<String, Integer> map = new HashMap<>();
+    private final ArrayList<String> sitesUrl;
 
-    public MakoRobot(String rootWebsiteUrl) {
-        super(rootWebsiteUrl);
-    }
-
-    @Override
-    public Map<String, Integer> getWordsStatistics() throws IOException {
+    public MakoRobot() throws IOException {
+        super("https://www.mako.co.il/");
         String url, begging = "https://www.mako.co.il/";
-        ArrayList<String> sitesUrl = new ArrayList<>();
+        sitesUrl = new ArrayList<>();
         Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
         //teasers section
         for (Element teasers : mako.getElementsByClass("teasers")) {
@@ -41,7 +38,10 @@ public class MakoRobot extends BaseRobot implements MapOrder {
                 }
             }
         }
+    }
 
+    @Override
+    public Map<String, Integer> getWordsStatistics() throws IOException {
         //access the sites
         for (String site : sitesUrl) {
             //String for storage the whole text of the site
@@ -49,20 +49,47 @@ public class MakoRobot extends BaseRobot implements MapOrder {
             siteText = accessSite(site);
             siteText = correctWords(siteText);
             String[] wordsOfArticle = siteText.split(" ");
-            map = getWordsIntoMap(wordsOfArticle,map);
+            map = getWordsIntoMap(wordsOfArticle, map);
         }
         return map;
     }
 
 
     @Override
-    public int countInArticlesTitles(String text) {
-        return 0;
+    public int countInArticlesTitles(String text) throws IOException {
+        Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
+        int count = 0;
+        for (Element element : mako.getElementsByTag("span")) {
+            for (Element title : element.getElementsByAttributeValue("data-type", "title")) {
+                if (title.text().contains(text)) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     @Override
-    public String getLongestArticleTitle() {
-        return null;
+    public String getLongestArticleTitle() throws IOException {
+        Document article;
+        String longestArticleTitle = "";
+        int longest = 0;
+        for (String site : sitesUrl) {
+            article = Jsoup.connect(site).get();
+            //title
+            String title = article.getElementsByTag("h1").get(0).text();
+            //article body
+            StringBuilder siteTextBuilder = new StringBuilder();
+            Element articleBody = article.getElementsByClass("article-body").get(0);
+            for (Element p : articleBody.getElementsByTag("p")) {
+                siteTextBuilder.append(p.text());
+            }
+            if (longest < siteTextBuilder.length()) {
+                longest = siteTextBuilder.length();
+                longestArticleTitle = title;
+            }
+        }
+        return longestArticleTitle;
     }
 
     public String accessSite(String site) throws IOException {
@@ -82,5 +109,5 @@ public class MakoRobot extends BaseRobot implements MapOrder {
         }
         //getting all the words
         return siteTextBuilder.toString();
-       }
+    }
 }

@@ -20,7 +20,7 @@ public abstract class BaseRobot {
 
     public abstract int countInArticlesTitles(String text) throws IOException;
 
-    public abstract String getLongestArticleTitle();
+    public abstract String getLongestArticleTitle() throws IOException;
 
 
 }
