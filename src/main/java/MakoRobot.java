@@ -10,10 +10,11 @@ import java.util.Map;
 public class MakoRobot extends BaseRobot implements MapOrder {
     private Map<String, Integer> map = new HashMap<>();
     private final ArrayList<String> sitesUrl;
+    private String url, begging;
 
     public MakoRobot() throws IOException {
         super("https://www.mako.co.il/");
-        String url, begging = "https://www.mako.co.il/";
+        begging = "https://www.mako.co.il/";
         sitesUrl = new ArrayList<>();
         Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
         //teasers section
