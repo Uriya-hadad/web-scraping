@@ -1,9 +1,10 @@
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public interface MapOrder {
+
     String accessSite(String site) throws IOException;
+
     default Map<String, Integer> getWordsIntoMap(String[] wordsOfArticle, Map<String, Integer> map) {
         int value;
         for (String word : wordsOfArticle) {
@@ -20,7 +21,6 @@ public interface MapOrder {
     default String correctWords(String siteText) {
         siteText = siteText.replaceAll("[-–•<>@&_%():,.?0-9]", " ");
         siteText = siteText.replaceAll("\"\\s|\\s\"", " ");
-        //TODO האם לעשות את הדאבל גרשיים כך שבכל מממקום זה פשוט ימחק אותם ולא ישים רווח?
         siteText = siteText.replaceAll("\\s+", " ");
         return siteText;
     }

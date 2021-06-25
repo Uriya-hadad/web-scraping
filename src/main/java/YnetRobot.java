@@ -59,8 +59,8 @@ public class YnetRobot extends BaseRobot implements MapOrder {
     @Override
     public int countInArticlesTitles(String text) throws IOException {
         int count = 0;
-        Document document = Jsoup.connect(getRootWebsiteUrl()).get();
-        for (Element container : document.getElementsByClass("layoutContainer")) {
+        Document ynet = Jsoup.connect(getRootWebsiteUrl()).get();
+        for (Element container : ynet.getElementsByClass("layoutContainer")) {
             for (Element title_small : container.getElementsByClass("slotTitle small")) {
                 if (title_small.text().contains(text)) {
                     count++;
@@ -72,10 +72,10 @@ public class YnetRobot extends BaseRobot implements MapOrder {
                 }
             }
         }
-        if (document.getElementsByClass("slotSubTitle").get(0).text().contains(text)) {
+        if (ynet.getElementsByClass("slotSubTitle").get(0).text().contains(text)) {
             count++;
         }
-        if (document.getElementsByClass("slotTitle").get(0).text().contains(text)) {
+        if (ynet.getElementsByClass("slotTitle").get(0).text().contains(text)) {
             count++;
         }
         return count;

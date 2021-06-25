@@ -8,9 +8,7 @@ public class Driver {
         scanner = new Scanner(System.in);
         int points = 0;
         BaseRobot site = getSiteSelection();
-        for (int i = 0; i < 5; i++) {
-            points += guessCommonWords(site);
-        }
+        points += guessCommonWords(site);
         String userText = getHeadlinesText();
         System.out.println("how many time it will appears?:");
         int quantity = scanner.nextInt();
@@ -25,7 +23,6 @@ public class Driver {
 
     private static int chuckText(int quantity, String userText, BaseRobot site) throws IOException {
         int realQuantity = site.countInArticlesTitles(userText);
-            System.out.println(realQuantity);
         if (Math.abs(quantity - realQuantity) <= 2) {
             return 250;
         }
@@ -54,24 +51,20 @@ public class Driver {
         //clear buffer
         scanner.nextLine();
         //input must be between 1 to 3 so i can return null in case it isn't
-        switch (input) {
-            case 1:
-                try {
+        try {
+            switch (input) {
+                case 1:
                     return new MakoRobot();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            case 2:
-                try {
-                    return new YnetRobot();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
-            default:
-                WallaRobot walla = new WallaRobot();
-                return new WallaRobot();
+                case 2:
+                    return new YnetRobot();
+                default:
+                    return new WallaRobot();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     private static int guessCommonWords(BaseRobot site) {
@@ -81,8 +74,11 @@ public class Driver {
             String longestArticle = site.getLongestArticleTitle();
             System.out.println("Please guess what the most common words on the site are?");
             System.out.println("hint:\n" + longestArticle);
-            guess = scanner.nextLine();
-            points = site.countInArticlesTitles(guess);
+            for (int i = 1; i <= 5; i++) {
+                System.out.println("guess number " + i + ":");
+                guess = scanner.nextLine();
+                points += site.countInArticlesTitles(guess);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

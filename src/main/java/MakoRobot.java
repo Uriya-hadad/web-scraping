@@ -1,7 +1,6 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class MakoRobot extends BaseRobot implements MapOrder {
         }
         //news section
         for (Element news : mako.getElementsByClass("neo_ordering scale_image horizontal news")) {
-            for (Element h5 : news.getElementsByTag("h5")) {
+            for (Element h5 : news.getElementsByTag("h5")){
                 url = h5.child(0).attributes().get("href");
                 if (url.contains(begging)) {
                     sitesUrl.add(url);
@@ -59,8 +58,8 @@ public class MakoRobot extends BaseRobot implements MapOrder {
     public int countInArticlesTitles(String text) throws IOException {
         Document mako = Jsoup.connect(getRootWebsiteUrl()).get();
         int count = 0;
-        for (Element element : mako.getElementsByTag("span")) {
-            for (Element title : element.getElementsByAttributeValue("data-type", "title")) {
+        for (Element spanElements : mako.getElementsByTag("span")) {
+            for (Element title : spanElements.getElementsByAttributeValue("data-type", "title")) {
                 if (title.text().contains(text)) {
                     count++;
                 }
