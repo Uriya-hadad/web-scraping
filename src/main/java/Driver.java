@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Driver {
@@ -8,16 +9,21 @@ public class Driver {
         scanner = new Scanner(System.in);
         int points = 0;
         BaseRobot site = getSiteSelection();
-        points += guessCommonWords(site);
-        String userText = getHeadlinesText();
-        System.out.println("how many time it will appears?:");
-        int quantity = scanner.nextInt();
-        try {
-            points += chuckText(quantity, userText, site);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // if the exception is being caught in getSiteSelection() so site will be null
+        if (site != null) {
+            points += guessCommonWords(site);
+            String userText = getHeadlinesText();
+            System.out.println("how many time it will appears?:");
+            int quantity = scanner.nextInt();
+            try {
+                points += chuckText(quantity, userText, site);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("you achieved " + points + " points!");
+        } else {
+            System.out.println("cant access website, sorry.");
         }
-        System.out.println("you achieved " + points + " points!");
 
     }
 
@@ -74,10 +80,12 @@ public class Driver {
             String longestArticle = site.getLongestArticleTitle();
             System.out.println("Please guess what the most common words on the site are?");
             System.out.println("hint:\n" + longestArticle);
+            Map<String, Integer> wordsInSite = site.getWordsStatistics();
+            System.out.println(wordsInSite);
             for (int i = 1; i <= 5; i++) {
                 System.out.println("guess number " + i + ":");
                 guess = scanner.nextLine();
-                points += site.countInArticlesTitles(guess);
+                points += wordsInSite.getOrDefault(guess, 0);
             }
         } catch (IOException e) {
             e.printStackTrace();

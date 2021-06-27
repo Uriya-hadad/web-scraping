@@ -1,8 +1,6 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +64,7 @@ public class WallaRobot extends BaseRobot implements MapOrder {
     public int countInArticlesTitles(String text) throws IOException {
         int count = 0;
         Document walla = Jsoup.connect(getRootWebsiteUrl()).get();
-        String titleFromWeb = "";
+        String titleFromWeb;
         for (Element teasers : walla.getElementsByClass("with-roof ")) {
             titleFromWeb = teasers.getElementsByTag("h2").text();
             if (titleFromWeb.contains(text)) {

@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.util.Map;
 
 public interface MapOrder {
-
     String accessSite(String site) throws IOException;
 
     default Map<String, Integer> getWordsIntoMap(String[] wordsOfArticle, Map<String, Integer> map) {
