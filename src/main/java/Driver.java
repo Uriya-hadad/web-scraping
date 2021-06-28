@@ -81,7 +81,6 @@ public class Driver {
             System.out.println("Please guess what the most common words on the site are?");
             System.out.println("hint:\n" + longestArticle);
             Map<String, Integer> wordsInSite = site.getWordsStatistics();
-            System.out.println(wordsInSite);
             for (int i = 1; i <= 5; i++) {
                 System.out.println("guess number " + i + ":");
                 guess = scanner.nextLine();
